@@ -1,3 +1,4 @@
+import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -97,8 +98,12 @@ class Net(nn.Module):
 
 if __name__ == '__main__':
     net = Net()
-    x = torch.randn(4,3,128,64)
-    y = net(x)
-    import ipdb; ipdb.set_trace()
+    net=net.cuda()
+    for i in range(10):
+        start=time.time()
+        x = torch.randn(4,3,128,64)
+        y = net(x.cuda())
+        print(time.time()-start)
+    # import ipdb; ipdb.set_trace()
 
 

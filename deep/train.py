@@ -1,3 +1,4 @@
+
 import argparse
 import os
 import time
@@ -11,7 +12,7 @@ import torchvision
 from model import Net
 
 parser = argparse.ArgumentParser(description="Train on market1501")
-parser.add_argument("--data-dir",default='data',type=str)
+parser.add_argument("--data-dir",default=r'D:\TDDownload\Market-1501-v15.09.15',type=str)
 parser.add_argument("--no-cuda",action="store_true")
 parser.add_argument("--gpu-id",default=0,type=int)
 parser.add_argument("--lr",default=0.1, type=float)

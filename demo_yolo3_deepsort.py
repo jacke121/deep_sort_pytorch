@@ -12,6 +12,7 @@ class Detector(object):
     def __init__(self):
         self.vdo = cv2.VideoCapture()
         self.yolo3 = YOLO3("YOLO3/cfg/yolo_v3.cfg","YOLO3/yolov3.weights","YOLO3/cfg/coco.names", is_xywh=True)
+        self.yolo3.net= self.yolo3.net.cuda()
         self.deepsort = DeepSort("deep/checkpoint/ckpt.t7")
         self.class_names = self.yolo3.class_names
         self.write_video = True
@@ -33,13 +34,17 @@ class Detector(object):
             start = time.time()
             _, ori_im = self.vdo.retrieve()
             im = ori_im[ymin:ymax, xmin:xmax, (2,1,0)]
+            start=time.time()
             bbox_xywh, cls_conf, cls_ids = self.yolo3(im)
+            print('yolo',time.time()-start)
             if bbox_xywh is not None:
                 mask = cls_ids==0
                 bbox_xywh = bbox_xywh[mask]
                 bbox_xywh[:,3] *= 1.2
                 cls_conf = cls_conf[mask]
+                start=time.time()
                 outputs = self.deepsort.update(bbox_xywh, cls_conf, im)
+                print('sort',time.time()-start)
                 if len(outputs) > 0:
                     bbox_xyxy = outputs[:,:4]
                     identities = outputs[:,-1]
@@ -57,12 +62,10 @@ class Detector(object):
 
 
 if __name__=="__main__":
-    import sys
-    if len(sys.argv) == 1:
-        print("Usage: python demo_yolo3_deepsort.py [YOUR_VIDEO_PATH]")
-    else:
-        cv2.namedWindow("test", cv2.WINDOW_NORMAL)
-        cv2.resizeWindow("test", 800,600)
-        det = Detector()
-        det.open(sys.argv[1])
-        det.detect()
+
+    file=r'MOT16-11.mp4'
+    cv2.namedWindow("test", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("test", 800,600)
+    det = Detector()
+    det.open(file)
+    det.detect()
